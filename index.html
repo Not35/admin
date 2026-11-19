@@ -79,7 +79,7 @@
 
   <div id="app-wrapper">
 
-    <!-- หน้าล็อกอิน -->
+    <!-- ==================== หน้าล็อกอิน ==================== -->
     <section id="login-view" class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-sky-50 via-blue-50 to-amber-50">
       <div class="w-full max-w-md bg-white rounded-3xl shadow-xl border border-sky-100 overflow-hidden">
         <div class="bg-gradient-to-r from-sky-600 to-blue-700 px-6 py-7 text-center text-white relative">
@@ -91,12 +91,12 @@
           <div class="absolute bottom-0 left-0 right-0 h-1.5 bg-yellow-400"></div>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event); return false;" class="p-7 space-y-5">
+        <form id="loginForm" novalidate onsubmit="handleLogin(event); return false;" class="p-7 space-y-5">
           <div>
             <label for="loginUser" class="block text-sm font-semibold text-slate-700 mb-1.5">ชื่อผู้ใช้ (Username)</label>
             <div class="relative">
               <i class="fa-solid fa-user absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="text" id="loginUser" required autocomplete="username" placeholder="กรอกชื่อผู้ใช้"
+              <input type="text" id="loginUser" autocomplete="username" placeholder="กรอกชื่อผู้ใช้"
                 class="w-full pl-11 pr-4 py-3 rounded-xl border-2 border-slate-200 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 outline-none transition-all">
             </div>
           </div>
@@ -105,9 +105,9 @@
             <label for="loginPass" class="block text-sm font-semibold text-slate-700 mb-1.5">รหัสผ่าน (Password)</label>
             <div class="relative">
               <i class="fa-solid fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="password" id="loginPass" required autocomplete="current-password" placeholder="กรอกรหัสผ่าน"
+              <input type="password" id="loginPass" autocomplete="current-password" placeholder="กรอกรหัสผ่าน"
                 class="w-full pl-11 pr-11 py-3 rounded-xl border-2 border-slate-200 focus:border-sky-500 focus:ring-4 focus:ring-sky-100 outline-none transition-all">
-              <button type="button" onclick="togglePassword()" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+              <button type="button" onclick="togglePassword('loginPass', 'eyeIcon')" class="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" aria-label="แสดงหรือซ่อนรหัสผ่าน">
                 <i id="eyeIcon" class="fa-solid fa-eye"></i>
               </button>
             </div>
@@ -127,7 +127,7 @@
       </div>
     </section>
 
-    <!-- หน้าแดชบอร์ดผู้ตรวจสอบ -->
+    <!-- ==================== หน้าแดชบอร์ดผู้ตรวจสอบ ==================== -->
     <section id="dashboard-view" class="hidden min-h-screen pb-12">
       <!-- Navbar -->
       <header class="bg-gradient-to-r from-sky-700 via-blue-700 to-sky-600 text-white shadow-md sticky top-0 z-30 border-b-4 border-yellow-400">
@@ -142,11 +142,16 @@
             </div>
           </div>
 
-          <div class="flex items-center gap-2">
-            <span class="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-xs font-medium">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="hidden lg:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/15 text-xs font-medium">
               <i class="fa-solid fa-user-check text-yellow-300"></i>
               <span id="adminDisplayName">ผู้ตรวจสอบ</span>
             </span>
+            <button type="button" onclick="openAdminsModal()"
+              class="px-3 py-2 rounded-xl bg-sky-500/40 hover:bg-sky-500/60 border border-sky-300/40 text-white text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
+              <i class="fa-solid fa-user-shield text-yellow-300"></i>
+              <span>ผู้ดูแลระบบ</span>
+            </button>
             <button type="button" onclick="openSettingsModal()"
               class="px-3 py-2 rounded-xl bg-yellow-400 hover:bg-yellow-300 text-sky-950 text-xs font-semibold transition flex items-center gap-1.5 shadow-sm">
               <i class="fa-solid fa-gear"></i>
@@ -289,6 +294,105 @@
       </main>
     </section>
 
+    <!-- ==================== Modal จัดการผู้ดูแลระบบ (เพิ่ม / แก้ไข / ลบ) ==================== -->
+    <div id="adminsModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+      <div class="bg-white w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl shadow-2xl border border-sky-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-sky-700 to-blue-700 px-6 py-4 text-white flex items-center justify-between border-b-4 border-yellow-400 shrink-0">
+          <div class="flex items-center gap-2.5">
+            <i class="fa-solid fa-user-shield text-yellow-300 text-lg"></i>
+            <h2 class="text-base font-bold">จัดการบัญชีผู้ดูแลระบบ</h2>
+          </div>
+          <button type="button" onclick="closeAdminsModal()" class="w-8 h-8 rounded-lg hover:bg-white/20 flex items-center justify-center transition">
+            <i class="fa-solid fa-xmark text-lg"></i>
+          </button>
+        </div>
+
+        <div class="p-5 sm:p-6 space-y-5 overflow-y-auto">
+          <!-- ฟอร์มเพิ่ม / แก้ไขผู้ดูแล -->
+          <form id="adminForm" novalidate onsubmit="handleSaveAdmin(event); return false;" class="p-4 rounded-2xl bg-sky-50/70 border border-sky-200/80 space-y-3.5">
+            <div class="flex items-center justify-between">
+              <h3 id="adminFormTitle" class="text-sm font-bold text-sky-900 flex items-center gap-2">
+                <i class="fa-solid fa-user-plus text-sky-600"></i> เพิ่มผู้ดูแลระบบใหม่
+              </h3>
+              <button type="button" id="cancelEditAdminBtn" onclick="resetAdminForm()" class="hidden text-xs font-medium text-rose-600 hover:underline">
+                ยกเลิกการแก้ไข
+              </button>
+            </div>
+
+            <div id="mainAdminEditNote" class="hidden p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-amber-800 text-xs flex items-center gap-2">
+              <i class="fa-solid fa-lock text-amber-600"></i>
+              <span>แอดมินหลัก (NT) ถูกล็อกชื่อผู้ใช้ รหัสผ่าน และสถานะเพื่อความปลอดภัย แก้ไขได้เฉพาะชื่อผู้ตรวจสอบ</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อผู้ใช้ (Username) *</label>
+                <input type="text" id="admUsername" placeholder="เช่น staff01"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-sky-500 outline-none text-sm disabled:bg-slate-100 disabled:text-slate-500">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">รหัสผ่าน (Password) *</label>
+                <div class="relative">
+                  <input type="text" id="admPassword" placeholder="กำหนดรหัสผ่าน"
+                    class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-sky-500 outline-none text-sm disabled:bg-slate-100 disabled:text-slate-500">
+                </div>
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">ชื่อผู้ตรวจสอบ (แสดงใน PDF) *</label>
+                <input type="text" id="admName" placeholder="เช่น อ.สมชาย ใจดี"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-sky-500 outline-none text-sm">
+              </div>
+              <div>
+                <label class="block text-xs font-semibold text-slate-600 mb-1">สถานะบัญชี</label>
+                <select id="admStatus"
+                  class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white focus:border-sky-500 outline-none text-sm disabled:bg-slate-100 disabled:text-slate-500">
+                  <option value="ใช้งาน">ใช้งาน</option>
+                  <option value="ระงับ">ระงับ</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="flex justify-end pt-1">
+              <button type="submit" id="saveAdminBtn"
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white text-sm font-semibold shadow-sm transition flex items-center gap-2">
+                <i class="fa-solid fa-plus"></i>
+                <span>เพิ่มผู้ดูแลระบบ</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- ตารางรายชื่อผู้ดูแลทั้งหมด -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <h3 class="text-sm font-bold text-slate-700">รายชื่อผู้ดูแลระบบทั้งหมด</h3>
+              <span id="adminsCountBadge" class="text-xs text-slate-400">0 บัญชี</span>
+            </div>
+
+            <div class="border border-slate-200 rounded-2xl overflow-hidden">
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 text-xs font-semibold">
+                      <th class="py-2.5 px-3.5">Username</th>
+                      <th class="py-2.5 px-3.5">ชื่อผู้ตรวจสอบ</th>
+                      <th class="py-2.5 px-3.5">รหัสผ่าน</th>
+                      <th class="py-2.5 px-3.5 text-center">สถานะ</th>
+                      <th class="py-2.5 px-3.5 text-center">จัดการ</th>
+                    </tr>
+                  </thead>
+                  <tbody id="adminsTableBody" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+              <div id="adminsLoading" class="hidden py-8 text-center text-sky-600 text-xs">
+                <i class="fa-solid fa-circle-notch fa-spin text-xl mb-1"></i>
+                <div>กำลังโหลดรายชื่อผู้ดูแล...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- ==================== Modal เมนูตั้งค่าโลโก้ Base64 ==================== -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-lg max-h-[90vh] flex flex-col rounded-3xl shadow-2xl border border-sky-100 overflow-hidden">
@@ -399,6 +503,8 @@
 
     let allRegistrations = [];
     let filteredRegistrations = [];
+    let allAdmins = [];
+    let editingAdminOriginalUsername = null;
     let currentLogoBase64 = '';
     let draftLogoBase64 = '';
     let toastTimer = null;
@@ -414,10 +520,15 @@
       catch (e) { return null; }
     }
 
-    // ตัวกลางส่งคำสั่งไปยัง Apps Script พร้อมตรวจจับข้อผิดพลาดชัดเจน
+    function setSession(obj) {
+      sessionStorage.setItem('ppvc_admin_session', JSON.stringify(obj));
+    }
+
+    // ตัวกลางส่ง API พร้อมรองรับ Redirect ของ Apps Script และแจ้ง Error ชัดเจน
     async function postApi(payload) {
       const res = await fetch(API_URL, {
         method: 'POST',
+        redirect: 'follow',
         headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify(payload)
       });
@@ -425,11 +536,363 @@
       try {
         return JSON.parse(text);
       } catch (e) {
-        throw new Error('ระบบหลังบ้านตอบกลับไม่ถูกต้อง กรุณาตรวจสอบว่า Deploy เป็น "ทุกคน (Anyone)" และเลือก "เวอร์ชันใหม่" แล้ว');
+        throw new Error('ระบบหลังบ้านตอบกลับไม่ถูกต้อง กรุณาตรวจสอบว่า Deploy Apps Script เป็น "ทุกคน (Anyone)" และเลือก "เวอร์ชันใหม่" แล้ว');
       }
     }
 
-    // โหลดและแสดงโลโก้ในหน้า Admin
+    function togglePassword(inputId, iconId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      }
+    }
+
+    // ==================== ระบบล็อกอิน ====================
+    async function handleLogin(e) {
+      if (e) e.preventDefault();
+
+      const username = document.getElementById('loginUser').value.trim();
+      const password = document.getElementById('loginPass').value.trim();
+      const btn = document.getElementById('loginBtn');
+      const errBox = document.getElementById('loginError');
+      const errText = document.getElementById('loginErrorText');
+
+      errBox.classList.add('hidden');
+
+      if (!username || !password) {
+        errText.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่านให้ครบถ้วน';
+        errBox.classList.remove('hidden');
+        return false;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังตรวจสอบ...</span>';
+
+      try {
+        const result = await postApi({ action: 'login', username, password });
+
+        if (result.status === 'success') {
+          setSession({
+            username: result.username,
+            password: password,
+            adminName: result.adminName,
+            isMain: !!result.isMain
+          });
+          enterDashboard(result.adminName);
+        } else {
+          errText.textContent = result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
+          errBox.classList.remove('hidden');
+        }
+      } catch (err) {
+        errText.textContent = err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (หากใช้เบราว์เซอร์ Brave ลองปิดโล่ Shields ชั่วคราว)';
+        errBox.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>เข้าสู่ระบบ</span>';
+      }
+      return false;
+    }
+
+    function enterDashboard(adminName) {
+      document.getElementById('login-view').classList.add('hidden');
+      document.getElementById('dashboard-view').classList.remove('hidden');
+      document.getElementById('adminDisplayName').textContent = adminName;
+      fetchData();
+    }
+
+    function logout() {
+      sessionStorage.removeItem('ppvc_admin_session');
+      location.reload();
+    }
+
+    // ==================== ระบบจัดการผู้ดูแลระบบ (เพิ่ม / แก้ไข / ลบ) ====================
+    function openAdminsModal() {
+      resetAdminForm();
+      document.getElementById('adminsModal').classList.remove('hidden');
+      fetchAdmins();
+    }
+
+    function closeAdminsModal() {
+      document.getElementById('adminsModal').classList.add('hidden');
+      resetAdminForm();
+    }
+
+    async function fetchAdmins() {
+      const session = getSession();
+      if (!session) return logout();
+
+      const tbody = document.getElementById('adminsTableBody');
+      const loading = document.getElementById('adminsLoading');
+      tbody.innerHTML = '';
+      loading.classList.remove('hidden');
+
+      try {
+        const result = await postApi({
+          action: 'getAdmins',
+          username: session.username,
+          password: session.password
+        });
+
+        if (result.status === 'unauthorized') {
+          showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
+          return logout();
+        }
+        if (result.status === 'success') {
+          allAdmins = result.admins || [];
+          renderAdminsTable();
+        } else {
+          showToast(result.message || 'โหลดรายชื่อผู้ดูแลไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'ไม่สามารถเชื่อมต่อฐานข้อมูลได้', 'error');
+      } finally {
+        loading.classList.add('hidden');
+      }
+    }
+
+    function renderAdminsTable() {
+      const tbody = document.getElementById('adminsTableBody');
+      const session = getSession();
+      document.getElementById('adminsCountBadge').textContent = `${allAdmins.length} บัญชี`;
+
+      if (allAdmins.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="py-6 text-center text-slate-400 text-xs">ไม่พบข้อมูลผู้ดูแลระบบ</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = allAdmins.map((adm, idx) => {
+        const isMain = !!adm.isMain;
+        const isSelf = session && session.username === adm.username;
+        const statusBadge = adm.status === 'ใช้งาน'
+          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+          : 'bg-rose-50 text-rose-700 border border-rose-200';
+
+        return `
+          <tr class="hover:bg-sky-50/40">
+            <td class="py-3 px-3.5 font-semibold text-slate-800 whitespace-nowrap">
+              <div class="flex items-center gap-1.5">
+                <span>${escapeHtml(adm.username)}</span>
+                ${isMain ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">แอดมินหลัก</span>' : ''}
+                ${isSelf ? '<span class="px-1.5 py-0.5 rounded-full text-[10px] font-medium bg-sky-100 text-sky-700">คุณ</span>' : ''}
+              </div>
+            </td>
+            <td class="py-3 px-3.5 text-slate-700">${escapeHtml(adm.adminName)}</td>
+            <td class="py-3 px-3.5 whitespace-nowrap">
+              <div class="flex items-center gap-1.5">
+                <span id="admPassMask-${idx}" class="font-mono text-xs text-slate-500">••••••••</span>
+                <button type="button" onclick="toggleAdminRowPass(${idx})" title="ดู/ซ่อนรหัสผ่าน"
+                  class="text-slate-400 hover:text-sky-600 text-xs">
+                  <i id="admPassIcon-${idx}" class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+            </td>
+            <td class="py-3 px-3.5 text-center whitespace-nowrap">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${statusBadge}">${escapeHtml(adm.status)}</span>
+            </td>
+            <td class="py-3 px-3.5 text-center whitespace-nowrap">
+              <div class="inline-flex items-center gap-1">
+                <button type="button" onclick="startEditAdmin(${idx})" title="แก้ไข"
+                  class="w-8 h-8 rounded-lg text-sky-600 hover:bg-sky-50 transition">
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+                ${isMain
+                  ? '<span title="แอดมินหลักไม่สามารถลบได้" class="w-8 h-8 rounded-lg text-amber-500 inline-flex items-center justify-center cursor-not-allowed"><i class="fa-solid fa-shield-halved"></i></span>'
+                  : (isSelf
+                    ? '<span title="ไม่สามารถลบบัญชีที่กำลังล็อกอินอยู่" class="w-8 h-8 rounded-lg text-slate-300 inline-flex items-center justify-center cursor-not-allowed"><i class="fa-solid fa-trash-can"></i></span>'
+                    : `<button type="button" onclick="deleteAdminAccount(${idx})" title="ลบผู้ดูแล" class="w-8 h-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition"><i class="fa-solid fa-trash-can"></i></button>`)
+                }
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function toggleAdminRowPass(idx) {
+      const span = document.getElementById(`admPassMask-${idx}`);
+      const icon = document.getElementById(`admPassIcon-${idx}`);
+      const adm = allAdmins[idx];
+      if (!adm) return;
+
+      if (span.dataset.shown === '1') {
+        span.textContent = '••••••••';
+        span.dataset.shown = '0';
+        icon.classList.replace('fa-eye-slash', 'fa-eye');
+      } else {
+        span.textContent = adm.password;
+        span.dataset.shown = '1';
+        icon.classList.replace('fa-eye', 'fa-eye-slash');
+      }
+    }
+
+    function startEditAdmin(idx) {
+      const adm = allAdmins[idx];
+      if (!adm) return;
+
+      editingAdminOriginalUsername = adm.username;
+      const uInput = document.getElementById('admUsername');
+      const pInput = document.getElementById('admPassword');
+      const nInput = document.getElementById('admName');
+      const sInput = document.getElementById('admStatus');
+
+      uInput.value = adm.username;
+      pInput.value = adm.password;
+      nInput.value = adm.adminName;
+      sInput.value = adm.status;
+
+      // หากเป็นแอดมินหลัก ล็อกช่อง username, password, status
+      const lockFields = !!adm.isMain;
+      uInput.disabled = lockFields;
+      pInput.disabled = lockFields;
+      sInput.disabled = lockFields;
+      document.getElementById('mainAdminEditNote').classList.toggle('hidden', !lockFields);
+
+      document.getElementById('adminFormTitle').innerHTML =
+        `<i class="fa-solid fa-pen-to-square text-amber-600"></i> แก้ไขผู้ดูแลระบบ: ${escapeHtml(adm.username)}`;
+      document.getElementById('cancelEditAdminBtn').classList.remove('hidden');
+      document.getElementById('saveAdminBtn').innerHTML =
+        '<i class="fa-solid fa-floppy-disk"></i> <span>บันทึกการแก้ไข</span>';
+
+      nInput.focus();
+    }
+
+    function resetAdminForm() {
+      editingAdminOriginalUsername = null;
+      const uInput = document.getElementById('admUsername');
+      const pInput = document.getElementById('admPassword');
+      const nInput = document.getElementById('admName');
+      const sInput = document.getElementById('admStatus');
+
+      uInput.value = '';
+      pInput.value = '';
+      nInput.value = '';
+      sInput.value = 'ใช้งาน';
+      uInput.disabled = false;
+      pInput.disabled = false;
+      sInput.disabled = false;
+
+      document.getElementById('mainAdminEditNote').classList.add('hidden');
+      document.getElementById('adminFormTitle').innerHTML =
+        '<i class="fa-solid fa-user-plus text-sky-600"></i> เพิ่มผู้ดูแลระบบใหม่';
+      document.getElementById('cancelEditAdminBtn').classList.add('hidden');
+      document.getElementById('saveAdminBtn').innerHTML =
+        '<i class="fa-solid fa-plus"></i> <span>เพิ่มผู้ดูแลระบบ</span>';
+    }
+
+    async function handleSaveAdmin(e) {
+      if (e) e.preventDefault();
+      const session = getSession();
+      if (!session) return logout();
+
+      const username = document.getElementById('admUsername').value.trim();
+      const password = document.getElementById('admPassword').value.trim();
+      const adminName = document.getElementById('admName').value.trim();
+      const status = document.getElementById('admStatus').value;
+
+      if (!username || !password || !adminName) {
+        showToast('กรุณากรอกชื่อผู้ใช้ รหัสผ่าน และชื่อผู้ตรวจสอบให้ครบ', 'error');
+        return false;
+      }
+
+      const btn = document.getElementById('saveAdminBtn');
+      const isEdit = editingAdminOriginalUsername !== null;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังบันทึก...</span>';
+
+      try {
+        const payload = isEdit
+          ? {
+              action: 'updateAdmin',
+              username: session.username,
+              password: session.password,
+              originalUsername: editingAdminOriginalUsername,
+              adminData: { username, password, adminName, status }
+            }
+          : {
+              action: 'addAdmin',
+              username: session.username,
+              password: session.password,
+              adminData: { username, password, adminName, status }
+            };
+
+        const result = await postApi(payload);
+
+        if (result.status === 'unauthorized') {
+          showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
+          return logout();
+        }
+        if (result.status === 'success') {
+          // หากแก้ไขบัญชีของตัวเองอยู่ ให้อัปเดต Session ตามด้วย
+          if (isEdit && editingAdminOriginalUsername === session.username) {
+            const updatedSession = {
+              ...session,
+              username: session.isMain ? session.username : username,
+              password: session.isMain ? session.password : password,
+              adminName: adminName
+            };
+            setSession(updatedSession);
+            document.getElementById('adminDisplayName').textContent = adminName;
+          }
+          showToast(result.message || 'บันทึกข้อมูลผู้ดูแลเรียบร้อยแล้ว', 'success');
+          resetAdminForm();
+          fetchAdmins();
+        } else {
+          showToast(result.message || 'บันทึกไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+      } finally {
+        btn.disabled = false;
+        if (editingAdminOriginalUsername !== null) {
+          btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> <span>บันทึกการแก้ไข</span>';
+        } else {
+          btn.innerHTML = '<i class="fa-solid fa-plus"></i> <span>เพิ่มผู้ดูแลระบบ</span>';
+        }
+      }
+      return false;
+    }
+
+    async function deleteAdminAccount(idx) {
+      const adm = allAdmins[idx];
+      if (!adm) return;
+      if (adm.isMain) {
+        return showToast('ไม่สามารถลบแอดมินหลัก (NT) ได้', 'error');
+      }
+      if (!confirm(`ยืนยันการลบผู้ดูแลระบบ "${adm.username}" (${adm.adminName}) ใช่หรือไม่?`)) return;
+
+      const session = getSession();
+      if (!session) return logout();
+
+      try {
+        const result = await postApi({
+          action: 'deleteAdmin',
+          username: session.username,
+          password: session.password,
+          targetUsername: adm.username
+        });
+
+        if (result.status === 'unauthorized') {
+          showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
+          return logout();
+        }
+        if (result.status === 'success') {
+          showToast(result.message || 'ลบผู้ดูแลเรียบร้อยแล้ว', 'success');
+          if (editingAdminOriginalUsername === adm.username) resetAdminForm();
+          fetchAdmins();
+        } else {
+          showToast(result.message || 'ลบผู้ดูแลไม่สำเร็จ', 'error');
+        }
+      } catch (err) {
+        showToast(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+      }
+    }
+
+    // ==================== ระบบโลโก้ Base64 ====================
     async function loadAdminLogo() {
       const cached = localStorage.getItem('ppvc_logo_base64');
       if (cached) {
@@ -467,7 +930,6 @@
       }
     }
 
-    // ==================== ฟังก์ชันเมนูตั้งค่าโลโก้ Base64 ====================
     function openSettingsModal() {
       draftLogoBase64 = currentLogoBase64;
       document.getElementById('logoFileInput').value = '';
@@ -590,64 +1052,7 @@
       }
     }
 
-    // ==================== ระบบล็อกอิน & จัดการข้อมูลผู้สมัคร ====================
-    function togglePassword() {
-      const input = document.getElementById('loginPass');
-      const icon = document.getElementById('eyeIcon');
-      if (input.type === 'password') {
-        input.type = 'text';
-        icon.classList.replace('fa-eye', 'fa-eye-slash');
-      } else {
-        input.type = 'password';
-        icon.classList.replace('fa-eye-slash', 'fa-eye');
-      }
-    }
-
-    async function handleLogin(e) {
-      e.preventDefault();
-      const username = document.getElementById('loginUser').value.trim();
-      const password = document.getElementById('loginPass').value.trim();
-      const btn = document.getElementById('loginBtn');
-      const errBox = document.getElementById('loginError');
-      const errText = document.getElementById('loginErrorText');
-
-      errBox.classList.add('hidden');
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังตรวจสอบ...</span>';
-
-      try {
-        const result = await postApi({ action: 'login', username, password });
-
-        if (result.status === 'success') {
-          sessionStorage.setItem('ppvc_admin_session', JSON.stringify({
-            username: result.username, password, adminName: result.adminName
-          }));
-          enterDashboard(result.adminName);
-        } else {
-          errText.textContent = result.message || 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง';
-          errBox.classList.remove('hidden');
-        }
-      } catch (err) {
-        errText.textContent = err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (หากใช้ Brave ลองปิด Shields ชั่วคราว)';
-        errBox.classList.remove('hidden');
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>เข้าสู่ระบบ</span>';
-      }
-    }
-
-    function enterDashboard(adminName) {
-      document.getElementById('login-view').classList.add('hidden');
-      document.getElementById('dashboard-view').classList.remove('hidden');
-      document.getElementById('adminDisplayName').textContent = adminName;
-      fetchData();
-    }
-
-    function logout() {
-      sessionStorage.removeItem('ppvc_admin_session');
-      location.reload();
-    }
-
+    // ==================== จัดการข้อมูลผู้สมัครเรียน ====================
     async function fetchData() {
       const session = getSession();
       if (!session) return logout();
@@ -666,7 +1071,9 @@
 
       try {
         const result = await postApi({
-          action: 'getData', username: session.username, password: session.password
+          action: 'getData',
+          username: session.username,
+          password: session.password
         });
 
         if (result.status === 'unauthorized') {
@@ -840,6 +1247,7 @@
       }
     }
 
+    // ==================== ส่งออก PDF (ไทยสารบรรณ) & CSV ====================
     async function exportPDF() {
       if (filteredRegistrations.length === 0) return showToast('ไม่มีข้อมูลสำหรับส่งออก PDF', 'error');
 
