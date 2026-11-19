@@ -91,7 +91,7 @@
           <div class="absolute bottom-0 left-0 right-0 h-1.5 bg-yellow-400"></div>
         </div>
 
-        <form id="loginForm" class="p-7 space-y-5">
+        <form id="loginForm" onsubmit="handleLogin(event); return false;" class="p-7 space-y-5">
           <div>
             <label for="loginUser" class="block text-sm font-semibold text-slate-700 mb-1.5">ชื่อผู้ใช้ (Username)</label>
             <div class="relative">
@@ -113,8 +113,8 @@
             </div>
           </div>
 
-          <div id="loginError" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-center gap-2">
-            <i class="fa-solid fa-circle-exclamation text-rose-500"></i>
+          <div id="loginError" class="hidden p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs flex items-start gap-2">
+            <i class="fa-solid fa-circle-exclamation text-rose-500 mt-0.5 shrink-0"></i>
             <span id="loginErrorText"></span>
           </div>
 
@@ -292,7 +292,6 @@
     <!-- ==================== Modal เมนูตั้งค่าโลโก้ Base64 ==================== -->
     <div id="settingsModal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div class="bg-white w-full max-w-lg max-h-[90vh] flex flex-col rounded-3xl shadow-2xl border border-sky-100 overflow-hidden">
-        <!-- Header Modal -->
         <div class="bg-gradient-to-r from-sky-600 to-blue-700 px-6 py-4 text-white flex items-center justify-between border-b-4 border-yellow-400 shrink-0">
           <div class="flex items-center gap-2.5">
             <i class="fa-solid fa-sliders text-yellow-300 text-lg"></i>
@@ -304,7 +303,6 @@
         </div>
 
         <div class="p-6 space-y-5 overflow-y-auto">
-          <!-- ตัวอย่างการแสดงผลจริงบนหัวเว็บ -->
           <div>
             <p class="text-xs font-semibold text-slate-500 mb-2">ตัวอย่างการแสดงผลบนหน้าสมัครเรียน</p>
             <div class="rounded-2xl bg-gradient-to-r from-sky-600 to-blue-600 p-4 flex items-center gap-3.5 text-white shadow-inner">
@@ -319,7 +317,6 @@
             </div>
           </div>
 
-          <!-- ปุ่มแนบรูปภาพ -->
           <div>
             <label class="block text-sm font-semibold text-slate-700 mb-2">
               <i class="fa-solid fa-image text-sky-500 mr-1.5"></i>แนบรูปภาพโลโก้ (PNG / JPG / WebP)
@@ -333,7 +330,6 @@
             </label>
           </div>
 
-          <!-- แสดงข้อความ Base64 ที่แปลงได้ -->
           <div>
             <div class="flex items-center justify-between mb-1">
               <label class="text-xs font-semibold text-slate-600">ข้อความ Base64 ที่ระบบแปลงได้</label>
@@ -343,7 +339,6 @@
               class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-[11px] font-mono text-slate-600 outline-none resize-none"></textarea>
           </div>
 
-          <!-- ปุ่มบันทึก / รีเซ็ต -->
           <div class="flex flex-wrap items-center justify-between gap-2.5 pt-2 border-t border-slate-100">
             <button type="button" onclick="resetLogoToDefault()"
               class="px-3.5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-100 text-slate-600 text-xs font-medium transition flex items-center gap-1.5">
@@ -400,9 +395,6 @@
   </div>
 
   <script>
-    // =================================================================
-    // ตั้งค่าลิงก์ API ของ Google Apps Script ที่นี่
-    // =================================================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbzOzWfI66l2x8e_G6FHzfKjFR03-7ZzgkFrq_AFcGZqTiXuvOH1fFyZkwRX3X-KpjVQ/exec';
 
     let allRegistrations = [];
@@ -417,13 +409,24 @@
       if (saved) enterDashboard(saved.adminName);
     });
 
-    function isApiConfigured() {
-      return API_URL && API_URL.startsWith('https://script.google.com/');
-    }
-
     function getSession() {
       try { return JSON.parse(sessionStorage.getItem('ppvc_admin_session')); }
-      catch { return null; }
+      catch (e) { return null; }
+    }
+
+    // ตัวกลางส่งคำสั่งไปยัง Apps Script พร้อมตรวจจับข้อผิดพลาดชัดเจน
+    async function postApi(payload) {
+      const res = await fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload)
+      });
+      const text = await res.text();
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error('ระบบหลังบ้านตอบกลับไม่ถูกต้อง กรุณาตรวจสอบว่า Deploy เป็น "ทุกคน (Anyone)" และเลือก "เวอร์ชันใหม่" แล้ว');
+      }
     }
 
     // โหลดและแสดงโลโก้ในหน้า Admin
@@ -434,15 +437,8 @@
         renderAdminLogos(cached);
       }
 
-      if (!isApiConfigured()) return;
-
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'getSettings' })
-        });
-        const result = await res.json();
+        const result = await postApi({ action: 'getSettings' });
         if (result.status === 'success') {
           currentLogoBase64 = result.logoBase64 || '';
           if (currentLogoBase64) localStorage.setItem('ppvc_logo_base64', currentLogoBase64);
@@ -564,17 +560,12 @@
       btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังบันทึก...</span>';
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'saveSettings',
-            username: session.username,
-            password: session.password,
-            logoBase64: draftLogoBase64
-          })
+        const result = await postApi({
+          action: 'saveSettings',
+          username: session.username,
+          password: session.password,
+          logoBase64: draftLogoBase64
         });
-        const result = await res.json();
 
         if (result.status === 'unauthorized') {
           showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
@@ -592,7 +583,7 @@
           showToast(result.message || 'บันทึกโลโก้ไม่สำเร็จ', 'error');
         }
       } catch (err) {
-        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error');
+        showToast(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อฐานข้อมูล', 'error');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-floppy-disk"></i> <span>บันทึกโลโก้</span>';
@@ -612,7 +603,7 @@
       }
     }
 
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    async function handleLogin(e) {
       e.preventDefault();
       const username = document.getElementById('loginUser').value.trim();
       const password = document.getElementById('loginPass').value.trim();
@@ -621,23 +612,11 @@
       const errText = document.getElementById('loginErrorText');
 
       errBox.classList.add('hidden');
-
-      if (!isApiConfigured()) {
-        errText.textContent = 'ยังไม่ได้ตั้งค่าลิงก์ API_URL ในไฟล์ admin.html';
-        errBox.classList.remove('hidden');
-        return;
-      }
-
       btn.disabled = true;
       btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> <span>กำลังตรวจสอบ...</span>';
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ action: 'login', username, password })
-        });
-        const result = await res.json();
+        const result = await postApi({ action: 'login', username, password });
 
         if (result.status === 'success') {
           sessionStorage.setItem('ppvc_admin_session', JSON.stringify({
@@ -649,13 +628,13 @@
           errBox.classList.remove('hidden');
         }
       } catch (err) {
-        errText.textContent = 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ กรุณาตรวจสอบลิงก์ API';
+        errText.textContent = err.message || 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้ (หากใช้ Brave ลองปิด Shields ชั่วคราว)';
         errBox.classList.remove('hidden');
       } finally {
         btn.disabled = false;
         btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> <span>เข้าสู่ระบบ</span>';
       }
-    });
+    }
 
     function enterDashboard(adminName) {
       document.getElementById('login-view').classList.add('hidden');
@@ -686,14 +665,9 @@
       }
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'getData', username: session.username, password: session.password
-          })
+        const result = await postApi({
+          action: 'getData', username: session.username, password: session.password
         });
-        const result = await res.json();
 
         if (result.status === 'unauthorized') {
           showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
@@ -706,8 +680,8 @@
         } else {
           showToast(result.message || 'โหลดข้อมูลไม่สำเร็จ', 'error');
         }
-      } catch {
-        showToast('เชื่อมต่อฐานข้อมูลไม่ได้', 'error');
+      } catch (err) {
+        showToast(err.message || 'เชื่อมต่อฐานข้อมูลไม่ได้', 'error');
       } finally {
         loading.classList.add('hidden');
         icon.classList.remove('fa-spin');
@@ -811,14 +785,9 @@
 
       selectEl.disabled = true;
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'updateStatus', username: session.username, password: session.password, regId, newStatus
-          })
+        const result = await postApi({
+          action: 'updateStatus', username: session.username, password: session.password, regId, newStatus
         });
-        const result = await res.json();
 
         if (result.status === 'unauthorized') {
           showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
@@ -833,9 +802,9 @@
           selectEl.value = oldStatus;
           showToast(result.message || 'อัปเดตสถานะไม่สำเร็จ', 'error');
         }
-      } catch {
+      } catch (err) {
         selectEl.value = oldStatus;
-        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+        showToast(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
       } finally {
         selectEl.disabled = false;
       }
@@ -850,14 +819,9 @@
       if (!session) return logout();
 
       try {
-        const res = await fetch(API_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({
-            action: 'deleteRow', username: session.username, password: session.password, regId
-          })
+        const result = await postApi({
+          action: 'deleteRow', username: session.username, password: session.password, regId
         });
-        const result = await res.json();
 
         if (result.status === 'unauthorized') {
           showToast('สิทธิ์การใช้งานหมดอายุ กรุณาเข้าสู่ระบบใหม่', 'error');
@@ -871,8 +835,8 @@
         } else {
           showToast(result.message || 'ลบข้อมูลไม่สำเร็จ', 'error');
         }
-      } catch {
-        showToast('เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
+      } catch (err) {
+        showToast(err.message || 'เกิดข้อผิดพลาดในการเชื่อมต่อ', 'error');
       }
     }
 
@@ -914,7 +878,6 @@
       document.getElementById('pdfAdminSign').textContent =
         `( ${session ? session.adminName : 'เจ้าหน้าที่งานทะเบียน'} )`;
 
-      // บังคับโหลดฟอนต์ Sarabun (ไทยสารบรรณ) ให้พร้อมก่อนเปิดหน้าต่างพิมพ์
       if (document.fonts) {
         try {
           await Promise.all([
